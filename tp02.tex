@@ -175,26 +175,71 @@ La implementación de \texttt{showtS} con arreglos persistentes usa las funcione
 
 \section*{\texttt{reduceS}}
 
+Para la implementación de \texttt{reduceS} con arreglos persistentes definimos
+una función \texttt{contract} que contrae la secuencia dada con una operación
+binaria utilizando la función \texttt{tabulate} provista, que a su vez utiliza
+una función con el mismo costo que la operación binaria, de modo que el costo
+de \texttt{contract} queda de la siguiente manera:
+
+\begin{equation*}
+    W \left( contract \oplus s \right) \in
+    O \left( \sum_{i=0}^{\frac{\vert s \vert}{2} + 1} W \left( s_{2i} \oplus s_{2i+1} \right) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( contract \oplus s \right) \in
+    O \left( \max_{i=0}^{\frac{\vert s \vert}{2} + 1} S \left( s_{2i} \oplus s_{2i+1} \right) \right)
+\end{equation*}
+
+Luego, \texttt{reduceS} utiliza \texttt{contract} en cada llamado recursivo,
+dividiendo la entrada por 2 en cada paso. En el caso del trabajo, esto resulta
+en recorrer la secuencia linealmente, además del trabajo de la operación binaria.
+En el caso de la profundidad, \texttt{contract} paraleliza la aplicación de la
+función binaria en cada nivel del árbol de reducción, luego la profundidad total
+resulta en las profundidades más costosas de cada nivel (que es lg $\vert s \vert$).
+
 \begin{equation*}
     W \left( reduceS \oplus b \; s \right) \in
-    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} W(x \oplus y) \right)
+    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} W \left( x \oplus y \right) \right)
 \end{equation*}
 
 \begin{equation*}
     S \left( reduceS \oplus b \; s \right) \in
-    O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} S(x \oplus y) \right)
+    O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} S \left( x \oplus y \right) \right)
 \end{equation*}
 
 \section*{\texttt{scanS}}
 
+La implementación con arreglos persistentes de \texttt{scanS} también utiliza
+la función \texttt{contract} definida por nosotros (cuyo costo está especificado
+en el análisis de \texttt{reduceS}) y una nueva función \texttt{combine} que lo
+que hace es combinar una secuencia ($s$) y el resultado de aplicar \texttt{scanS}
+a la secuencia $s$ junto con la operación binaria y el elemento neutro ($s'$), de
+manera de lograr la reducción buscada.
+
+\texttt{combine} utiliza \texttt{tabulate} con una función que tiene costo $O \left( 1 \right)$
+cuando el índice es par y $O \left( s'_{i} \oplus s_{2i-1} \right)$ cuando el índice 
+es impar, de manera que el trabajo y profundidad dependen de éste último caso,
+quedando:
+
+\begin{equation*}
+    W \left( combine \oplus s \; s' \right) \in
+    O \left( \sum_{i=1}^{\frac{\vert s \vert}{2}} W \left( s'_{i} \oplus s_{2i-1} \right) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( combine \oplus s \; s' \right) \in
+    O \left( \max_{i=1}^{\frac{\vert s \vert}{2}} S \left( s'_{i} \oplus s_{2i-1} \right) \right)
+\end{equation*}
+
 \begin{equation*}
     W \left( scanS \oplus b \; s \right) \in
-    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_s(\oplus,b,s)} W(x \oplus y) \right)
+    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_s(\oplus,b,s)} W \left( x \oplus y \right) \right)
 \end{equation*}
 
 \begin{equation*}
     S \left( scanS \oplus b \; s \right) \in
-    O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_s(\oplus,b,s)} S(x \oplus y) \right)
+    O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_s(\oplus,b,s)} S \left( x \oplus y \right) \right)
 \end{equation*}
 
 \end{document}

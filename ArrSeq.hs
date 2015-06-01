@@ -112,13 +112,6 @@ reduceA f b s
     | otherwise = f b (rdc f s)
 -}
   
-reduceA :: (a -> a -> a) -> a -> Arr a -> a
-reduceA f b s
-    | len == 0 = b
-    | len == 1 = s!0
-    | otherwise = reduceA f b (contract f s)
-    where len = Arr.length s
-
 showtA :: Arr a -> TreeView a (Arr a)
 showtA s 
     | len == 0 = EMPTY
@@ -152,6 +145,13 @@ contract f s
           odd_tab i = if 2*i == (len - 1) then s!(2*i) -- O(W/S f)
                       else f (s!(2*i)) (s!(2*i + 1))
 
+reduceA :: (a -> a -> a) -> a -> Arr a -> a
+reduceA f b s
+    | len == 0 = b
+    | len == 1 = s!0
+    | otherwise = reduceA f b (contract f s)
+    where len = Arr.length s
+
 -- Nota: esto hace majia pura papá, este tp es usar tabulate siempre que puedas.
 -- Hace lo que dice en los apuntes, básicamente.
 -- PREGUNTAR: así es como debe hacerse?
@@ -160,8 +160,8 @@ combine :: (a -> a -> a) -> Arr a -> Arr a -> Arr a
 combine f s s' = tabulate fun len
     where len = Arr.length s
           fun i = let m = div i 2
-                  in if isEven i then s'!m
-                     else f (s'!m) (s!(i - 1))
+                  in if isEven i then s'!m -- O(1) s'!(i/2)
+                     else f (s'!m) (s!(i - 1)) -- O(W/S f) s'!(i/2) `f` s!(i -1)
 
 scanA :: (a -> a -> a) -> a -> Arr a -> (Arr a, a)
 scanA f b s
