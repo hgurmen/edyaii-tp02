@@ -1,0 +1,200 @@
+\nonstopmode
+
+\documentclass[a4paper,10pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+
+\author{
+    Hernán Gurmendi \\
+    \texttt{hgurmen@gmail.com}
+    \and Nicolás Mendez Shurman \\
+    \texttt{nicol12b@gmail.com}
+}
+
+\date{
+    4 de junio de 2015
+}
+
+\title{
+    \Huge Especificación de costos \\
+    \Large Estructuras de Datos y Algoritmos II \\
+    \large Trabajo práctico 2
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\large \bf Docentes
+\end{center}
+
+\begin{center}
+Mauro Jaskelioff
+
+Cecila Manzino
+
+Juan M. Rabasedas
+
+Eugenia Simich
+\end{center}
+
+\newpage{}
+
+
+\part*{Implementación con listas}
+
+
+\section*{filterS}
+
+Para la implementación de \texttt{filterS} con listas se usa la función
+\texttt{filter} provista por el módulo \texttt{Prelude} ya que no se puede
+paralelizar el cálculo. En este caso, lo único que se podría paralelizar es
+el cálculo del predicado pasado como argumento.
+
+% \; is a thick space
+% \vert is |
+% \left( is big left parenthesis
+% \right) is big right parenthesis
+% \sum is summatory.
+% \max is max (math mode)
+% \mathbf is bold formatting
+
+\begin{equation*}
+    W \left( filterS\; f \; s \right) \in
+    O \left( \sum_{i=0}^{\vert s \vert -1} W(f \; s_i) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( filterS\; f \; s \right) \in
+    O \left( \sum_{i=0}^{\vert s \vert -1} S(f \; s_i) \right)
+\end{equation*}
+
+
+\section*{showtS}
+
+Hay que partir la lista dada en dos mitades, de modo que se necesita utilizar
+las funciones \texttt{take} y \texttt{drop} definidas (que en el caso de la
+implementación con listas son las mismas funciones que hay en \texttt{Prelude})
+que tienen orden lineal. Esto resulta en costo lineal para trabajo y profundidad.
+
+\begin{equation*}
+    W \left( showtS \; s \right) \in
+    O \left( \vert s \vert \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( showtS \; s \right) \in
+    O \left( \vert s \vert \right)
+\end{equation*}
+
+
+\section*{reduceS}
+
+Para la implementación de \texttt{reduceS} con listas se usa la función
+\texttt{contract} que tiene el siguiente trabajo y profundidad:
+
+
+%\begin{equation*}
+%    W(contract \; f \; s)
+%    \in
+%    O \left( \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} W(x \oplus y) \right)
+%\end{equation*}
+%
+%\begin{equation*}
+%    S(contract \; f \; s)
+%    \in
+%    O \left( \vert s \vert + \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} S(x \oplus y) \right)
+%\end{equation*}
+
+\begin{equation*}
+    W \left( reduceS \oplus b \; s \right) \in
+    O \left( algo \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( reduceS \oplus b \; s \right) \in
+    O \left( algo \right)
+\end{equation*}
+
+\section*{scanS}
+
+\begin{equation*}
+    W \left( scanS \; s \right) \in O \left( algo \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( scanS \; s \right) \in O \left( algo \right)
+\end{equation*}
+
+\newpage{}
+
+\setcounter{section}{0}
+
+\part*{Implementación con arreglos persistentes}
+
+\section*{filterS}
+
+Para la implementación con arreglos persistentes de \texttt{filterS} se aplica
+la función \texttt{flatten} a una secuencia de tamaño $\vert s \vert$ donde cada
+elemento de la misma es o un singleton o una secuencia vacía, de modo que el
+trabajo de flatten resulta lineal y la profundidad logarítmica. Esta secuencia,
+a su vez, se obtiene aplicando \texttt{tabulate} con una función (que tiene
+trabajo y profundidad iguales a los del predicado f) y un tamaño $\vert s \vert$,
+resultando entonces en los siguientes costos para \texttt{filterS}:
+
+\begin{equation*}
+    W \left( filterS \; f \; s \right) \in
+    O \left( \sum_{i=0}^{\vert s \vert -1} W(f \; s_i) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( filterS \; f \; s \right) \in
+    O \left( \text{lg} \; \vert s \vert + \max_{i=0}^{\vert s \vert -1} S(f \; s_i) \right)
+\end{equation*}
+
+
+\section*{showtS}
+
+La implementación de \texttt{showtS} con arreglos persistentes usa las funciones
+\texttt{takeS} y \texttt{dropS} (ambas con trabajo y profundidad O(1), ya que usan
+\texttt{subArray}), de modo que resultan con los siguientes costos:
+
+\begin{equation*}
+    W \left( showtS \; s \right) \in
+    O \left( 1 \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( showtS \; s \right) \in
+    O \left( 1 \right)
+\end{equation*}
+
+
+\section*{reduceS}
+
+\begin{equation*}
+    W \left( reduceS \oplus b \; s \right) \in
+    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} W(x \oplus y) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( reduceS \oplus b \; s \right) \in
+    O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} S(x \oplus y) \right)
+\end{equation*}
+
+\section*{scanS}
+
+\begin{equation*}
+    W \left( scanS \oplus b \; s \right) \in
+    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_s(\oplus,b,s)} W(x \oplus y) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( scanS \oplus b \; s \right) \in
+    O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_s(\oplus,b,s)} S(x \oplus y) \right)
+\end{equation*}
+
+\end{document}
