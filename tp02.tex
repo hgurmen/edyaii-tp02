@@ -1,10 +1,13 @@
 \nonstopmode
 
+\usepackage{fullpage}
+
 \documentclass[a4paper,10pt]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 \usepackage{amsmath}
+\usepackage[margin=1in]{geometry}
 
 \author{
     Hernán Gurmendi \\
@@ -49,10 +52,12 @@ Eugenia Simich
 
 \section*{\texttt{filterS}}
 
-Para la implementación de \texttt{filterS} con listas se usa la función
-\texttt{filter} provista por el módulo \texttt{Prelude} ya que no se puede
-paralelizar el cálculo. En este caso, lo único que se podría paralelizar es
-el cálculo del predicado pasado como argumento.
+La implementación de \texttt{filterS} con listas es similar a la función \texttt{filter}
+del \texttt{Prelude}, salvo que en el caso de una lista con más de un elemento se
+calcula el predicado con el primer elemento, en paralelo al cálculo del paso
+recursivo, de forma que para el trabajo se obtiene la suma de los trabajos de los
+predicados y para la profundidad se obtiene la suma de la profundidad de los
+predicados, tal como se nota a continuación:
 
 % \; is a thick space
 % \vert is |
@@ -64,21 +69,21 @@ el cálculo del predicado pasado como argumento.
 
 \begin{equation*}
     W \left( filterS\; f \; s \right) \in
-    O \left( \sum_{i=0}^{\vert s \vert -1} W(f \; s_i) \right)
+    O \left( \sum_{i=0}^{\vert s \vert -1} W \left( f \; s_i \right) \right)
 \end{equation*}
 
 \begin{equation*}
     S \left( filterS\; f \; s \right) \in
-    O \left( \sum_{i=0}^{\vert s \vert -1} S(f \; s_i) \right)
+    O \left( \vert s \vert + \max_{i=0}^{\vert s \vert -1} S \left( f \; s_i \right) \right)
 \end{equation*}
 
 
 \section*{\texttt{showtS}}
 
-Hay que partir la lista dada en dos mitades, de modo que se necesita utilizar
-las funciones \texttt{take} y \texttt{drop} definidas (que en el caso de la
+\texttt{showtS} precisa partir la lista dada en dos mitades, de modo que necesita
+utilizar las funciones \texttt{take} y \texttt{drop} (que en el caso de la
 implementación con listas son las mismas funciones que hay en \texttt{Prelude})
-que tienen orden lineal. Esto resulta en costo lineal para trabajo y profundidad.
+que tienen orden lineal. Esto resulta en costo lineal para trabajo y profundidad:
 
 \begin{equation*}
     W \left( showtS \; s \right) \in
@@ -93,36 +98,60 @@ que tienen orden lineal. Esto resulta en costo lineal para trabajo y profundidad
 
 \section*{\texttt{reduceS}}
 
-Para la implementación de \texttt{reduceS} con listas se usa la función
-\texttt{contract} que tiene el siguiente trabajo y profundidad:
-
+Para la implementación de \texttt{reduceS} con listas se usa la función \texttt{contract}
+que toma una operación binaria $\oplus$ y una secuencia $s$ y la contrae aplicando
+la operación binaria a cada par de elementos contiguos. Para esto se calcula la
+operación entre dichos elementos en paralelo al cálculo del paso recursivo de
+\texttt{contract}, resultando en la suma de los trabajos de $\oplus$ para el trabajo
+y la suma de las profundidades de $\oplus$ para la profundidad:
 
 \begin{equation*}
-    W(contract \; f \; s)
-    \in
-    O \left( \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} W(x \oplus y) \right)
+    W \left( contract \oplus s \right) \in
+    O \left( \sum_{i=0}^{\frac{\vert s \vert}{2} + 1} W \left( s_{2i} \oplus s_{2i+1} \right) \right)
 \end{equation*}
 
 \begin{equation*}
-    S(contract \; f \; s)
-    \in
-    O \left( \vert s \vert + \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} S(x \oplus y) \right)
+    S \left( contract \oplus s \right) \in
+    O \left( \sum_{i=0}^{\frac{\vert s \vert}{2} + 1} S \left( s_{2i} \oplus s_{2i+1} \right) \right)
+\end{equation*}
+
+Luego, \texttt{reduceS} aplicado a una operación binaria $\oplus$, un elemento $b$
+y una secuencia $s$ se calcula aplicando recursivamente \texttt{reduceS} a la
+misma operación $\oplus$, el mismo elemento $b$ y la secuencia obtenida de aplicar
+\texttt{contract} a $s$, generando el orden de reducción buscado. En el caso del
+trabajo, resulta en el tamaño de la secuencia sumado a los trabajos de todas las
+aplicaciones de $\oplus$ en el árbol de reducción, mientras que en el caso de la profundidad
+resulta en el tamaño de la secuencia sumado a las profundidades de todas las
+aplicaciones de $\oplus$ en el árbol de reducción.
+
+
+\begin{equation*}
+    W \left( reduceS \oplus \; b \; s \right) \in
+    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} W \left( x \oplus y \right) \right)
 \end{equation*}
 
 \begin{equation*}
-    W \left( reduceS \oplus b \; s \right) \in
-    O \left( algo \right)
-\end{equation*}
-
-\begin{equation*}
-    S \left( reduceS \oplus b \; s \right) \in
-    O \left( algo \right)
+    S \left( reduceS \oplus \; b \; s \right) \in
+    O \left( \vert s \vert + \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} S \left( x \oplus y \right) \right)
 \end{equation*}
 
 \section*{\texttt{scanS}}
 
+\texttt{combine}
+
 \begin{equation*}
-    W \left( scanS \; s \right) \in O \left( algo \right)
+    W \left( combine \oplus s \; s' \right) \in
+    O \left( \vert s \vert + \sum_{i=1}^{\frac{\vert s \vert}{2}} W \left( s'_{i} \oplus s_{2i - 1} \right) \right)
+\end{equation*}
+
+\begin{equation*}
+    S \left( combine \oplus s \; s' \right) \in
+    O \left( \vert s \vert + \sum_{i=1}^{\frac{\vert s \vert}{2}} S \left( s'_{i} \oplus s_{2i - 1} \right) \right)
+\end{equation*}
+
+\begin{equation*}
+    W \left( scanS \; s \right) \in
+    O \left( algo \right)
 \end{equation*}
 
 \begin{equation*}
@@ -131,7 +160,48 @@ Para la implementación de \texttt{reduceS} con listas se usa la función
 
 \newpage{}
 
-\setcounter{section}{0}
+%\setcounter{section}{0}
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
 
 \part*{Implementación con arreglos persistentes}
 
@@ -213,10 +283,9 @@ resulta en las profundidades más costosas de cada nivel (que es lg $\vert s \ve
 La implementación con arreglos persistentes de \texttt{scanS} también utiliza
 la función \texttt{contract} definida por nosotros (cuyo costo está especificado
 en el análisis de \texttt{reduceS}) y una nueva función \texttt{combine} que lo
-que hace es combinar una secuencia ($s$) y el resultado de aplicar \texttt{scanS}
-a la secuencia $s$ junto con la operación binaria y el elemento neutro ($s'$), de
-manera de lograr la reducción buscada.
-
+que hace es fusionar una secuencia $s$ y otra secuencia $s'$ mediante la operación
+binaria provista, sabiendo que $s'$ es el resultado de \texttt{scanS} aplicado a
+$contract s$
 \texttt{combine} utiliza \texttt{tabulate} con una función que tiene costo $O \left( 1 \right)$
 cuando el índice es par y $O \left( s'_{i} \oplus s_{2i-1} \right)$ cuando el índice 
 es impar, de manera que el trabajo y profundidad dependen de éste último caso,

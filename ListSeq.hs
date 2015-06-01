@@ -18,6 +18,17 @@ takeL xs n = Prelude.take n xs
 dropL :: [a] -> Int -> [a]
 dropL xs n = Prelude.drop n xs
 
+filterL :: (a -> Bool) -> [a] -> [a]
+filterL f [] = []
+filterL f (x:xs) = let (hd, tl) = f x ||| filterL f tl
+                   in if hd then x : filterL f tl
+                      else filterL f tl
+
+mapL :: (a -> b) -> [a] -> [b]
+mapL f [] = []
+mapL f (x:xs) = let (hd, tl) = fx ||| mapL f tl
+                in hd : tl
+
 -- PREGUNTAR: paralelizar el take y el drop en este caso no hace niguna mejora
 -- con respecto al trabajo y/o profundidad, verdad?
 -- Simplemente llevaria de O(n) a O(n/2) que es lo mismo...
@@ -39,7 +50,7 @@ showlL (x:xs) = CONS x xs
 contract :: (a -> a -> a) -> [a] -> [a]
 contract f []       = []
 contract f [x]      = [x]
---contract f (x:y:xs) = f x y : contract f xs
+contract f (x:y:xs) = f x y : contract f xs
 --contract f (x:y:xs) = let (fun, resto) = f x y ||| contract f xs
 --                      in fun : resto
 
@@ -63,10 +74,11 @@ reduceL se va aplicando recursivamente con una secuencia con la mitad de
 tamaño hasta llegar a lista de 1 elemento (logarítmico)
 
 -}
+
 reduceL :: (a -> a -> a) -> a -> [a] -> a
-reduceL f b []  = b
+reduceL f b [] = b
 reduceL f b [x] = f b x
-reduceL f b s  = reduceL f b (contract f s)
+reduceL f b s = reduceL f b (contract f s)
 
 {- --para debuggear
 let asd = contract f xs
@@ -116,9 +128,10 @@ combine :: (a -> a -> a) -> [a] -> [a] -> Bool -> [a]
 combine _ []       _           _ = []
 -- PREGUNTAR: esto creo que no hace falta...
 --combine _ _        []          _ = []
-combine f s@(x:xs) s'@(x':xs') True  = x' : (combine f s s' False)
+combine f s@(x:xs) s'@(x':xs') True  = x' : (combine f s s' False) -- O(1)
 combine f [x]      (x':xs')    False = []
-combine f (x:_:xs) (x':xs')    False = (f x' x) : (combine f xs xs' True)
+combine f (x:_:xs) (x':xs')    False = let (hd, tl) = (f x' x) ||| (combine f xs xs' True) -- O(f)
+                                       in hd : tl
 
 instance Seq [] where
     emptyS     = []          --
@@ -126,8 +139,8 @@ instance Seq [] where
     lengthS    = length      --
     nthS       = (!!)        --
     tabulateS  = tabulateL
-    mapS       = map         --
-    filterS    = filter      --
+    mapS       = mapL
+    filterS    = filterL
     appendS    = (++)        --
     takeS      = takeL
     dropS      = dropL
@@ -137,3 +150,8 @@ instance Seq [] where
     reduceS    = reduceL
     scanS      = scanL
     fromList   = id          --
+
+
+
+
+
