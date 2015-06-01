@@ -39,7 +39,7 @@ showlL (x:xs) = CONS x xs
 contract :: (a -> a -> a) -> [a] -> [a]
 contract f []       = []
 contract f [x]      = [x]
-contract f (x:y:xs) = f x y : contract f xs
+--contract f (x:y:xs) = f x y : contract f xs
 --contract f (x:y:xs) = let (fun, resto) = f x y ||| contract f xs
 --                      in fun : resto
 
@@ -137,35 +137,3 @@ instance Seq [] where
     reduceS    = reduceL
     scanS      = scanL
     fromList   = id          --
-    
-data Paren = Open | Close
-    deriving (Show, Eq)
-
-matchParen' :: [Paren] -> (Int, Int)
-matchParen' s = case showtL s of
-    EMPTY -> (0, 0)
-    ELT v -> if v == Open then (0, 1) else (1, 0)
-    NODE l r -> let (l', r') = (matchParen' l, matchParen' r)
-                    (i, j, k, l'') = (fst l', snd l', fst r', snd r')
-                in if j <= k then (i + k - j, l'')
-                   else (i, l'' + j - k)
-
-toParen :: String -> [Paren]
-toParen [] = []
-toParen (x:xs) = if x == '(' then Open : toParen xs
-                 else if x == ')' then Close : toParen xs else
-                      error "ASDASDAS"
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   
-                   

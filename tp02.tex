@@ -47,7 +47,7 @@ Eugenia Simich
 \part*{Implementación con listas}
 
 
-\section*{filterS}
+\section*{\texttt{filterS}}
 
 Para la implementación de \texttt{filterS} con listas se usa la función
 \texttt{filter} provista por el módulo \texttt{Prelude} ya que no se puede
@@ -73,7 +73,7 @@ el cálculo del predicado pasado como argumento.
 \end{equation*}
 
 
-\section*{showtS}
+\section*{\texttt{showtS}}
 
 Hay que partir la lista dada en dos mitades, de modo que se necesita utilizar
 las funciones \texttt{take} y \texttt{drop} definidas (que en el caso de la
@@ -91,23 +91,23 @@ que tienen orden lineal. Esto resulta en costo lineal para trabajo y profundidad
 \end{equation*}
 
 
-\section*{reduceS}
+\section*{\texttt{reduceS}}
 
 Para la implementación de \texttt{reduceS} con listas se usa la función
 \texttt{contract} que tiene el siguiente trabajo y profundidad:
 
 
-%\begin{equation*}
-%    W(contract \; f \; s)
-%    \in
-%    O \left( \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} W(x \oplus y) \right)
-%\end{equation*}
-%
-%\begin{equation*}
-%    S(contract \; f \; s)
-%    \in
-%    O \left( \vert s \vert + \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} S(x \oplus y) \right)
-%\end{equation*}
+\begin{equation*}
+    W(contract \; f \; s)
+    \in
+    O \left( \sum_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} W(x \oplus y) \right)
+\end{equation*}
+
+\begin{equation*}
+    S(contract \; f \; s)
+    \in
+    O \left( \vert s \vert + \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,s)} S(x \oplus y) \right)
+\end{equation*}
 
 \begin{equation*}
     W \left( reduceS \oplus b \; s \right) \in
@@ -119,7 +119,7 @@ Para la implementación de \texttt{reduceS} con listas se usa la función
     O \left( algo \right)
 \end{equation*}
 
-\section*{scanS}
+\section*{\texttt{scanS}}
 
 \begin{equation*}
     W \left( scanS \; s \right) \in O \left( algo \right)
@@ -135,7 +135,7 @@ Para la implementación de \texttt{reduceS} con listas se usa la función
 
 \part*{Implementación con arreglos persistentes}
 
-\section*{filterS}
+\section*{\texttt{filterS}}
 
 Para la implementación con arreglos persistentes de \texttt{filterS} se aplica
 la función \texttt{flatten} a una secuencia de tamaño $\vert s \vert$ donde cada
@@ -156,7 +156,7 @@ resultando entonces en los siguientes costos para \texttt{filterS}:
 \end{equation*}
 
 
-\section*{showtS}
+\section*{\texttt{showtS}}
 
 La implementación de \texttt{showtS} con arreglos persistentes usa las funciones
 \texttt{takeS} y \texttt{dropS} (ambas con trabajo y profundidad O(1), ya que usan
@@ -173,7 +173,7 @@ La implementación de \texttt{showtS} con arreglos persistentes usa las funcione
 \end{equation*}
 
 
-\section*{reduceS}
+\section*{\texttt{reduceS}}
 
 \begin{equation*}
     W \left( reduceS \oplus b \; s \right) \in
@@ -185,7 +185,7 @@ La implementación de \texttt{showtS} con arreglos persistentes usa las funcione
     O \left( \text{lg} \; \vert s \vert \; \max_{(x \oplus y) \in \mathcal{O}_r(\oplus,b,s)} S(x \oplus y) \right)
 \end{equation*}
 
-\section*{scanS}
+\section*{\texttt{scanS}}
 
 \begin{equation*}
     W \left( scanS \oplus b \; s \right) \in

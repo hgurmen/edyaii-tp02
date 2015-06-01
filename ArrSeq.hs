@@ -18,7 +18,6 @@ singletonA :: a -> Arr a
 singletonA x = Arr.fromList [x]
 
 -- Preguntar: cual es más efectivo??
--- No sé nada sobre el costo de flatten
 appendA :: Arr a -> Arr a -> Arr a
 appendA s s' = flatten (Arr.fromList [s, s'])
 
@@ -90,6 +89,7 @@ test6 = empty :: Arr Int
 test7 = singletonA 13
 test = Arr.fromList [test1,test2,test3,test4,test5,test6,test7]
 
+{-
 -- Integer Logarithm base 2
 ilg :: Int -> Int
 ilg 1 = 0
@@ -110,6 +110,14 @@ reduceA :: (a -> a -> a) -> a -> Arr a -> a
 reduceA f b s
     | Arr.length s == 0 = b
     | otherwise = f b (rdc f s)
+-}
+  
+reduceA :: (a -> a -> a) -> a -> Arr a -> a
+reduceA f b s
+    | len == 0 = b
+    | len == 1 = s!0
+    | otherwise = reduceA f b (contract f s)
+    where len = Arr.length s
 
 showtA :: Arr a -> TreeView a (Arr a)
 showtA s 
@@ -140,8 +148,8 @@ contract f s
     | otherwise = tabulate odd_tab (1 + m)
     where len = Arr.length s
           m = div len 2
-          even_tab i = f (s!(2*i)) (s!(2*i + 1))
-          odd_tab i = if 2*i == (len - 1) then s!(2*i)
+          even_tab i = f (s!(2*i)) (s!(2*i + 1)) -- O(W/S f)
+          odd_tab i = if 2*i == (len - 1) then s!(2*i) -- O(W/S f)
                       else f (s!(2*i)) (s!(2*i + 1))
 
 -- Nota: esto hace majia pura papá, este tp es usar tabulate siempre que puedas.
