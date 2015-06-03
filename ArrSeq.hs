@@ -1,13 +1,8 @@
 module ArrSeq where
 
--- *********************** NOTA ********************************
--- Para crear un array con una lista:
--- Seq.fromList [1,2,3,4] :: Arr Int
-
 import Seq
 import Par
 import Arr
-import Debug.Trace
 
 isEven :: Integral a => a -> Bool
 isEven x
@@ -57,23 +52,16 @@ showlA s
     | otherwise = CONS (s!0) (dropA s 1)
     where len = Arr.length s
 
--- Contrae la secuencia dada con la operación dada, de a 2 elementos.
--- Si la secuencia tiene tamaño par se usa la función even_tab con tabulate:
--- recorre el arreglo de a 2 elementos y va calculando la función.
--- Si la secuencia tiene tamaño impar se usa la función odd_tab con tabulate:
--- recorre el arreglo de a 2 elementos, fijándose que el primero no sea el último
--- de la secuencia, en cuyo caso lo deja solo, si no, funciona como even_tab.
--- PREGUNTAR: tiene el mismo costo que tabulate?
--- len es O(1), ver si es par también (creo...) y después aplica tabulate
--- con funciones, de modo que el costo es el mismo que tabulate.
+
+-- Contrae la secuencia con la operación binaria.
 contract :: (a -> a -> a) -> Arr a -> Arr a
 contract f s
     | isEven len = tabulate even_tab m
     | otherwise = tabulate odd_tab (1 + m)
     where len = Arr.length s
           m = div len 2
-          even_tab i = f (s!(2*i)) (s!(2*i + 1)) -- O(W/S f)
-          odd_tab i = if 2*i == (len - 1) then s!(2*i) -- O(W/S f)
+          even_tab i = f (s!(2*i)) (s!(2*i + 1))
+          odd_tab i = if 2*i == (len - 1) then s!(2*i)
                       else f (s!(2*i)) (s!(2*i + 1))
 
 
@@ -85,12 +73,13 @@ reduceA f b s
     where len = Arr.length s
 
 
+-- Combina las dos secuencias dadas con la operación binaria.
 combine :: (a -> a -> a) -> Arr a -> Arr a -> Arr a
 combine f s s' = tabulate fun len
     where len = Arr.length s
           fun i = let m = div i 2
-                  in if isEven i then s'!m -- O(1) s'!(i/2)
-                     else f (s'!m) (s!(i - 1)) -- O(W/S f) s'!(i/2) `f` s!(i -1)
+                  in if isEven i then s'!m
+                     else f (s'!m) (s!(i - 1))
 
 
 scanA :: (a -> a -> a) -> a -> Arr a -> (Arr a, a)

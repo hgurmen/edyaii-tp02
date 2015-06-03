@@ -21,14 +21,16 @@
 }
 
 \title{
-    \Huge Especificación de costos \\
-    \Large Estructuras de Datos y Algoritmos II \\
-    \large Trabajo práctico 2
+    \Huge \textsc{Especificación de costos} \\
+    \large \textsc{Estructuras de Datos y Algoritmos II} \\
+    \textsc{Trabajo práctico 2}
 }
 
 \begin{document}
 
 \maketitle
+
+\thispagestyle{empty}
 
 \begin{center}
 \large \bf Docentes
@@ -56,8 +58,8 @@ La implementación de \texttt{filterS} con listas es similar a la función \text
 del \texttt{Prelude}, salvo que en el caso de una lista con más de un elemento se
 calcula el predicado con el primer elemento en paralelo al cálculo del paso
 recursivo, de forma que para el trabajo se obtiene la suma de los trabajos de los
-predicados y para la profundidad se obtiene la longitud de la secuencia más la suma
-de la profundidad de los predicados, tal como se nota a continuación:
+predicados y para la profundidad se obtiene la longitud de la secuencia más la
+máxima de las profundidades de los predicados, tal como se nota a continuación:
 
 % \; is a thick space
 % \vert is |
@@ -81,7 +83,7 @@ de la profundidad de los predicados, tal como se nota a continuación:
 \section*{\texttt{showtS}}
 
 \texttt{showtS} precisa partir la lista dada en dos mitades, de modo que necesita
-utilizar las funciones \texttt{take} y \texttt{drop} (que en el caso de la
+utilizar las funciones \texttt{takeS} y \texttt{dropS} (que en el caso de la
 implementación con listas son las mismas funciones que hay en \texttt{Prelude})
 que tienen orden lineal. Esto resulta en costo lineal para trabajo y profundidad:
 
@@ -104,12 +106,12 @@ la operación binaria a cada par de elementos contiguos. Para esto se calcula la
 operación entre dichos elementos en paralelo al cálculo del paso recursivo de
 \texttt{contract}, resultando en la suma de los trabajos de $\oplus$ aplicado a
 cada par de elementos contiguos de la secuencia para el trabajo y la longitud de
-la secuencia más la suma de las profundidades de $\oplus$ aplicado a cada par de
+la secuencia más la máxima de las profundidades de $\oplus$ aplicado a cada par de
 elementos contiguos de la secuencia para la profundidad:
 
 \begin{equation*}
     W \left( contract \oplus s \right) \in
-    O \left( \sum_{i=0}^{\frac{\vert s \vert}{2} + 1} W \left( s_{2i} \oplus s_{2i+1} \right) \right)
+    O \left( \vert s \vert + \sum_{i=0}^{\frac{\vert s \vert}{2} + 1} W \left( s_{2i} \oplus s_{2i+1} \right) \right)
 \end{equation*}
 
 \begin{equation*}
@@ -117,8 +119,8 @@ elementos contiguos de la secuencia para la profundidad:
     O \left( \vert s \vert + \max_{i=0}^{\frac{\vert s \vert}{2} + 1} S \left( s_{2i} \oplus s_{2i+1} \right) \right)
 \end{equation*}
 
-Luego, \texttt{reduceS} aplicado a una operación binaria $\oplus$, un elemento $b$
-y una secuencia $s$ se calcula aplicando recursivamente \texttt{reduceS} a la
+Luego, \texttt{reduceS} aplicado a una operación binaria $\oplus$, un elemento $b$,
+y una secuencia $s$, se calcula aplicando recursivamente \texttt{reduceS} a la
 misma operación $\oplus$, el mismo elemento $b$ y la secuencia obtenida de aplicar
 \texttt{contract} a $s$, generando el orden de reducción buscado. Esto es lo mismo
 para el trabajo y la profundidad, de modo que el costo de recorrer todo el árbol
@@ -128,6 +130,8 @@ cada aplicación de $\oplus$ en el árbol de reducción más el tamaño de la li
 para la profundidad resulta la suma de las profundidades de cada aplicación de
 $\oplus$ en el árbol de reducción más el tamaño de la lista, ya que por cómo hay
 que forzar el orden de reducción no se puede aprovechar la profundidad de \texttt{contract}.
+
+\newpage
 
 \begin{equation*}
     W \left( reduceS \oplus \; b \; s \right) \in
@@ -143,8 +147,8 @@ que forzar el orden de reducción no se puede aprovechar la profundidad de \text
 
 \texttt{scanS}, además de utilizar \texttt{contract}, emplea la función \texttt{combine},
 que toma una operación binaria $\oplus$, 2 secuencias, $s$ y $s'$, y una bandera
-que indica si el índice actual de la secuencia resultante es par, para construir
-el orden de reducción buscado. Cuando el índice es par (bandera en $True$),
+que indica si el índice actual de la secuencia resultante es par (para construir
+el orden de reducción buscado). Cuando el índice es par (bandera en $True$),
 devuelve $s'_{\frac{i}{2}}$, mientras que cuando el índice es impar devuelve
 $s'_{\lfloor \frac{i}{2} \rfloor} \oplus s_{i-1}$ y en este caso ésta operación
 se efectúa en paralelo al paso recursivo, de modo que se mejora un poco la
@@ -162,7 +166,15 @@ profundidad, quedando:
 
 Luego, \texttt{scanS} simplemente aplica \texttt{combine} con la operación binaria
 $\oplus$, la secuencia original, y la secuencia obtenida de aplicar \texttt{scanS}
-a la contracción de la secuencia original con la operación anterior.
+a la contracción de la secuencia original con la operación anterior. Dado que
+\texttt{contract} tiene trabajo por lo menos lineal y \texttt{combine} también,
+el trabajo de scan resulta lineal en la longitud de la secuencia más el trabajo
+de todas las aplicaciones de la operación binaria en el árbol de reducción. En
+cuanto a la profundidad, \texttt{contract} y \texttt{combine} también se comportan
+linealmente por lo menos, de modo que no se puede aprovechar lo poco que se ganó
+en profundidad, así que resulta la longitud de la secuencia más la suma de todas
+las profundidades de las aplicaciones de la operación binaria en el árbol de
+reducción de \textt{scanS}:
 
 \begin{equation*}
     W \left( scanS \oplus b \; s \right) \in
