@@ -80,7 +80,7 @@ contract f s
 reduceA :: (a -> a -> a) -> a -> Arr a -> a
 reduceA f b s
     | len == 0 = b
-    | len == 1 = s!0
+    | len == 1 = f b (s!0)
     | otherwise = reduceA f b (contract f s)
     where len = Arr.length s
 

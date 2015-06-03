@@ -23,14 +23,14 @@ dropL xs n = Prelude.drop n xs
 
 filterL :: (a -> Bool) -> [a] -> [a]
 filterL f [] = []
-filterL f (x:xs) = let (hd, tl) = f x ||| filterL f tl
-                   in if hd then x : filterL f tl
-                      else filterL f tl
+filterL f (x:xs) = let (hd, tl) = f x ||| filterL f xs
+                   in if hd then x : tl
+                      else tl
 
 
 mapL :: (a -> b) -> [a] -> [b]
 mapL f [] = []
-mapL f (x:xs) = let (hd, tl) = f x ||| mapL f tl
+mapL f (x:xs) = let (hd, tl) = f x ||| mapL f xs
                 in hd : tl
 
 
@@ -100,6 +100,7 @@ Funciona:
 -}
 
 -- combine f s s' IndiceActualEsPar   ----->> 
+-- combine es O(f) en cada indice impar.
 combine :: (a -> a -> a) -> [a] -> [a] -> Bool -> [a]
 combine _ []       _           _     = []
 combine f s@(x:xs) s'@(x':xs') True  = x' : (combine f s s' False) -- O(1)
