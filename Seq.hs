@@ -21,4 +21,6 @@ class Seq s where
    fromList   :: [a] -> s a
 
 data TreeView a t = EMPTY | ELT a | NODE t t
+    deriving Show
 data ListView a t = NIL | CONS a t
+    deriving Show
